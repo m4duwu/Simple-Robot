@@ -1,18 +1,17 @@
 #define touchpin 9 // sets the capactitive touch sensor @pin 4
+int ledPin = 4; // sets the LED @pin 2
 #define echoPin 2
 #define trigPin 3
-int ledPin = 4; // sets the LED @pin 2
-
 
 #include <Servo.h>
-Servo myServo;
+Servo servo;
 
 long duration; 
-int position = 0;
 int direction = 0;
+int angle = 0;
+int distance = 0;
 unsigned long lastTime;
 unsigned long lastPrintTime = 0;
-
 
 
 void setup() {
@@ -20,19 +19,20 @@ void setup() {
   pinMode(ledPin, OUTPUT);  //sets the led as output
   pinMode(trigPin, OUTPUT); 
   pinMode(echoPin, INPUT); 
-  myServo.attach(7);
-  Serial.begin(9600);
+  servo.attach(7);
+  Serial.begin(115200);
+  
 }
 void loop() {
   int touchValue = digitalRead(touchpin); //reads the touch sensor signal
-  if (touchValue == HIGH) {     //if sensor is HIGH
+  if (touchValue == HIGH){      //if sensor is HIGH
     digitalWrite(ledPin, HIGH);   //LED will turn ON
   }
-  else {      //otherwise
-    digitalWrite(ledPin, LOW); //LED is turned OFF
-  }
-  delay(300);   //delay of 300milliseconds
-
+  else{       //otherwise
+    digitalWrite(ledPin,LOW); //LED is turned OFF
+  } 
+  delay(100);   //delay of 300milliseconds
+  
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
 
@@ -42,27 +42,18 @@ void loop() {
 
   duration = pulseIn(echoPin, HIGH, 2500);
 
-  Serial.println(duration);
-  
-  if(duration != 0 && duration > 500) { 
-      lastTime = millis(); 
-    }
+ if(duration != 0 && duration > 500) { 
+    for(angle = 0; angle < 120; angle++)  
+  {                                  
+    servo.write(angle);               
+    delay(5);                   
+  } 
+  // now scan back from 180 to 0 degrees
+  for(angle = 120; angle > 0; angle--)    
+  {                                
+    servo.write(angle);           
+    delay(5);       
+  } 
+ }
 
-
-    if(millis() - lastTime < 400) {
-        if (position != 120 && direction == 0) {
-        myServo.write(position);
-        position ++;
-      }
-      if (position == 120) {
-        direction = 1;
-      }
-      if (position != 0 && direction == 1) {
-        myServo.write(position);
-        position--;
-      }
-      if (position == 0) {
-        direction = 0;
-      }
-    }
 }
